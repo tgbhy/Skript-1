@@ -77,14 +77,6 @@ command /help [<text>] [<text>]:
 		if {_page} is not set:
 			set {_page} to 1
 
-
-# PAGE * NombreDeCommandeParPage
-
-# NbCommande / NombreDeCommandeParPage = NbPageMax
-# 11 / 5 = 2,2 => 3		<====== NbPageMax
-
-# ( PageActuel - 1 ) * NombreDeCommandeParPage = 1nb liste help
-
 		set {_1er} to ({_page} - 1) * {@NombreDeCommandeParPage}
 
 		set {_count} to 1
@@ -135,8 +127,6 @@ Function Help_SendPageAide(player: player, message: texts, page: integer):
 	send "%{Help::Message::DelimiteurBas}%" to {_player}
 
 	stop
-
-
 
 
 

@@ -1,0 +1,144 @@
+options:
+	# 20 lignes de texte dans le tchat avant d'être cacher (toujours bien à savoir ^^)
+	NombreDeCommandeParPage: 10
+
+on load:
+	clear {Help::*}
+	set {Help::ListeDeToutesLesCommandes::*} to all commands
+
+	load yaml "/plugins/Skript/YAML/Help/Messages.yml" as "Message_Help"
+
+	set {Help::Message::DelimiteurHaut} to skript-yaml value "Messages.DelimiteurHaut" from "Message_Help"
+	set {Help::Message::DelimiteurBas} to skript-yaml value "Messages.DelimiteurBas" from "Message_Help"
+	set {Help::Message::ChoixPage} to skript-yaml value "Messages.ChoixPage" from "Message_Help"
+	set {Help::Message::PagePrecedente_Dispo} to skript-yaml value "Messages.PagePrecedente_Dispo" from "Message_Help"
+	set {Help::Message::PagePrecedente_PasDispo} to skript-yaml value "Messages.PagePrecedente_PasDispo" from "Message_Help"
+	set {Help::Message::PageSuivante_Dispo} to skript-yaml value "Messages.PageSuivante_Dispo" from "Message_Help"
+	set {Help::Message::PageSuivante_PasDispo} to skript-yaml value "Messages.PageSuivante_PasDispo" from "Message_Help"
+	set {Help::Message::Information} to skript-yaml value "Messages.Information" from "Message_Help"
+	set {Help::CommandeCustom::*} to skript-yaml list "Messages.CommandeCustom" from "Message_Help"
+
+	set {_liste::*} to {Help::ListeDeToutesLesCommandes::*}
+	add {Help::CommandeCustom::*} to {_liste::*}
+
+	loop {_liste::*}:
+		if skript-yaml value "Messages.%loop-value%" from "Message_Help" is set:
+			add loop-value to {Help::ListeDesCommandes::*}
+			send "Page d'aide - &aChargement du message &b%loop-value%" to console
+
+			set {Help::Message::%loop-value%::*} to skript-yaml list "Messages.%loop-value%" from "Message_Help"
+			loop {Help::Message::%loop-value%::*}:
+				add loop-value-2 to {_l::*}
+				add "{NL}" to {_l::*}
+
+			set {_size} to size of {_l::*}
+			clear {_l::%{_size}%}
+			set {Help::Message::%loop-value%} to join {_l::*}
+
+			if {Help::Message::%loop-value%} is not set:
+				set {Help::Message::%loop-value%} to skript-yaml value "Messages.%loop-value%" from "Message_Help"
+
+			clear {_l::*}
+			wait 1 tick
+
+
+
+on tab complete of "/help" or "/aide":
+	set tab completions for position 1 to {Help::ListeDesCommandes::*}
+	stop
+
+
+command /help [<text>] [<text>]:
+	aliases: /aide
+	trigger:
+		set {_NbMaxPage} to ceil(size of {Help::ListeDesCommandes::*} / {@NombreDeCommandeParPage})
+
+		if arg 1 is set:
+			if arg 1 is "Page":
+				if arg 2 is set:
+					if (arg 2 parsed as integer) is between 1 and {_NbMaxPage}:
+						set {_page} to arg 2 parsed as integer
+					else if (arg 2 parsed as integer) > {_NbMaxPage}:
+						set {_page} to {_NbMaxPage}
+						
+			else:
+				if {Help::ListeDesCommandes::*} contain arg 1:
+					send "%{Help::Message::DelimiteurHaut}%"
+					send ""
+					json("%player%","%{Help::Message::%arg 1%}%")
+					send ""
+					send "%{Help::Message::DelimiteurBas}%"
+					stop
+					
+				else:
+					send "&cErreur&f: &7La commande &e%arg 1% &7ne dispose pas de page d'aide =("
+					stop
+
+		if {_page} is not set:
+			set {_page} to 1
+
+
+# PAGE * NombreDeCommandeParPage
+
+# NbCommande / NombreDeCommandeParPage = NbPageMax
+# 11 / 5 = 2,2 => 3		<====== NbPageMax
+
+# ( PageActuel - 1 ) * NombreDeCommandeParPage = 1nb liste help
+
+		set {_1er} to ({_page} - 1) * {@NombreDeCommandeParPage}
+
+		set {_count} to 1
+		loop {@NombreDeCommandeParPage} times:
+			set {_pos} to {_1er} + {_count}
+			add {Help::ListeDesCommandes::%{_pos}%} to {_ListeCmd::*}
+			add 1 to {_count}
+
+
+
+		loop alphabetical order of {_ListeCmd::*}:
+			add loop-value to {_Help::*}
+
+		Help_SendPageAide(player,{_Help::*},{_page})
+
+
+Function Help_SendPageAide(player: player, message: texts, page: integer):
+
+	send "%{Help::Message::DelimiteurHaut}%" to {_player}
+	json("%{_player}%","%{Help::Message::Information}%")
+	send "" to {_player}
+
+	loop {_message::*}:
+		json("%{_player}%","&bℹ||ttp:%{Help::Message::%loop-value%}%||sgt:/help %loop-value%|| &f- &6/%loop-value%||sgt:/%loop-value% ")
+
+	send "" to {_player}
+
+	set {_NbMaxPage} to ceil(size of {Help::ListeDesCommandes::*} / {@NombreDeCommandeParPage})
+	set {_ChoixBas} to {Help::Message::ChoixPage}
+
+	replace all "{PAGE_ACTUEL}" with "%{_page}%" in {_ChoixBas}
+	replace all "{PAGE_TOTAL}" with "%{_NbMaxPage}%" in {_ChoixBas}
+	
+	if {_page} is {_NbMaxPage}:
+		replace all "{PAGE_SUIVANTE}" with "%{Help::Message::PageSuivante_PasDispo}%" in {_ChoixBas}
+	else:
+		replace all "{PAGE_SUIVANTE}" with "%{Help::Message::PageSuivante_Dispo}%" in {_ChoixBas}
+		replace all "{PAGE+1}" with "%{_page} + 1%" in {_ChoixBas}
+
+	if {_page}-1 <= 0:
+		replace all "{PAGE_PRECEDENTE}" with "%{Help::Message::PagePrecedente_PasDispo}%" in {_ChoixBas}
+	else:
+		replace all "{PAGE_PRECEDENTE}" with "%{Help::Message::PagePrecedente_Dispo}%" in {_ChoixBas}
+		replace all "{PAGE-1}" with "%{_page} - 1%" in {_ChoixBas}
+
+
+	json("%{_player}%","%{_ChoixBas}%")
+	send "%{Help::Message::DelimiteurBas}%" to {_player}
+
+	stop
+
+
+
+
+
+on unload:
+	clear {Help::*}

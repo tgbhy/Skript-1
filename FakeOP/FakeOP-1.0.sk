@@ -1,0 +1,47 @@
+command /.op [<offline player>]:
+	permission : op
+	trigger:
+		if arg 1 is online:
+			send "&7&o[%player%&7&o : Opped %arg 1%&7&o]" to player
+			send "&7&o[%player%&7&o : Opped %arg 1%&7&o]" to arg 1
+			set {FakeOP::%arg 1%} to true
+			stop
+
+
+
+command /.deop [<player>]:
+	permission : op
+	trigger:
+		if arg 1 is online:
+			send "&7&o[%player%&7&o : Deopped %arg 1%&7&o]" to player
+			clear {FakeOP::%arg 1%}
+			stop
+
+
+
+on chat:
+	if {FakeOP::%player%} is true:
+		chance of 100:
+			add 1 to {GlobalMessage::%player%}
+			set {_rdm} to random integer between 3 and 6
+			if {GlobalMessage::%player%} >= {_rdm}:
+				kick player due to "disconnected.spam"
+				clear {GlobalMessage::%player%}
+				stop
+				
+
+
+
+on command:
+	if {FakeOP::%player%} is true:
+		chance of 100:
+			cancel event
+			send "&cCommande bloquer :ant_clown:" to console
+			send "&cAn internal error occurered while attempting to perform this command"
+			set {_rdm} to random integer between 0 and 100
+			if {_rdm} >= 20:
+				add "&cAn internal error occurered while attempting to perform this command" to {_liste::*}
+				add "disconnected.spam" to {_liste::*}
+				kick player due to "%random element out of {_liste::*}%"
+				stop
+			stop

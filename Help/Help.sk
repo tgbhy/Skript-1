@@ -85,12 +85,11 @@ command /help [<text>] [<text>]:
 			add {Help::ListeDesCommandes::%{_pos}%} to {_ListeCmd::*}
 			add 1 to {_count}
 
-
-
 		loop alphabetical order of {_ListeCmd::*}:
 			add loop-value to {_Help::*}
 
 		Help_SendPageAide(player,{_Help::*},{_page})
+
 
 
 Function Help_SendPageAide(player: player, message: texts, page: integer):

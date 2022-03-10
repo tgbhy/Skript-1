@@ -1,0 +1,271 @@
+Options:
+	Logo: &b[&6Antasia&b]
+	LogoDebug: &2[DEBUG]
+
+	TempsActuPing: 15 seconds
+
+
+on load:
+	loop all players:
+		if {Ping::%loop-player%::now} is not set:
+			Ping_StartPing(loop-player)
+
+	stop
+
+
+
+On join:
+	clear {Ping::%player%::*}
+
+	clear {Ping::%player%::15mn::*}
+	clear {Ping::%player%::5mn::*}
+	clear {Ping::%player%::1mn::*}
+
+	wait 1 seconds
+	Ping_StartPing(player)
+	stop
+
+
+
+Function Ping_StartPing(player: player):
+	set {_i1} to 0
+	set {_i1.2} to 0
+	set {_i2} to 0
+	set {_i2.2} to 0
+	set {_i3} to 0
+	set {_i3.2} to 0
+
+	set {_now} to now
+	set {Ping::%{_player}%::now} to now
+
+	while {_player} is online:
+		if {Stop} is set:
+			send "{@Logo} &cLe calcul des stats des pings a était arrêté !" to {_player}
+			stop
+		if {Ping::%{_player}%::now} is not {_now}:
+			stop
+
+		add 1 to {_i1}
+		add 1 to {_i2}
+		add 1 to {_i3}
+
+		set {_ping} to ping of {_player}
+
+		if {_i1} > 60:
+			add 1 to {_i1.2}
+			clear {Ping::%{_player}%::15mn::%{_i1.2}%}
+		set {Ping::%{_player}%::15mn::%{_i1}%} to {_ping}
+
+		if {_i2} > 20:
+			add 1 to {_i2.2}
+			clear {Ping::%{_player}%::5mn::%{_i2.2}%}
+		set {Ping::%{_player}%::5mn::%{_i2}%} to {_ping}
+
+		if {_i3} > 4:
+			add 1 to {_i3.2}
+			clear {Ping::%{_player}%::1mn::%{_i3.2}%}
+		set {Ping::%{_player}%::1mn::%{_i3}%} to {_ping}
+
+		wait {@TempsActuPing}
+	stop
+
+
+
+on quit:
+	clear {Ping::%player%::*}
+	
+	clear {Ping::%player%::15mn::*}
+	clear {Ping::%player%::5mn::*}
+	clear {Ping::%player%::1mn::*}
+
+
+
+Function Ping_GraphiqueCreator(player: player) :: object:
+
+	set {_Liste::*} to {Ping::%{_player}%::5mn::*}
+	if {_Liste::*} is empty:
+		add 0 to {_Liste::*}
+
+	set {_Ping.Max} to max({_Liste::*})
+	set {_Ping.Min} to min({_Liste::*})
+	set {_Ping.Dif} to difference between {_Ping.Min} and {_Ping.Max}
+	set {_Ping.Milieu} to {_Ping.Max} - ({_Ping.Dif} / 2)
+	set {_Diff} to difference between round(sum({_Liste::*}) / size of {_Liste::*}) and {_Ping.Max}
+	set {_Ping.Max} to round(sum({_Liste::*}) / size of {_Liste::*}) + {_Diff}
+
+	set {_vide} to "&7"
+	set {_ping} to "&a"
+	set {_erreur} to "&c"
+	
+	add "&cPing max&f: &c%max({_Liste::*})% ms &f| &aPing moyen&f: &a%round(sum({_Liste::*}) / size of {_Liste::*})% &f| &bPing min&f: &b%min({_Liste::*})%" to {_Ligne0::*}
+	add "%{_vide}%&n" to {_Jolie::*}
+	add "%{_vide}%" to {_Ligne1::*}
+	add "%{_vide}%" to {_Ligne2::*}
+	add "%{_vide}%" to {_Ligne3::*}
+	add "%{_vide}%" to {_Ligne4::*}
+	add "%{_vide}%&n" to {_Ligne5::*}
+
+	set {_compteur} to size of {_Liste::*}
+	# loop 20 times:
+	loop {_Liste::*}:
+		add 0.25 to {_Affiche.Time}
+		clear {_pourcentage}
+		set {_pourcentage} to ( {_Liste::%{_Compteur}%} - {_Ping.Min} ) * 100 / {_Ping.Dif}
+
+		if {_pourcentage} is between 0 and 20:
+			add "  " to {_Jolie::*}
+			add "⬛" to {_Ligne1::*}
+			add "⬛" to {_Ligne2::*}
+			add "⬛" to {_Ligne3::*}
+			add "⬛" to {_Ligne4::*}
+			add "%{_ping}%&n⬛%{_vide}%&n" to {_Ligne5::*}
+
+		else if {_pourcentage} is between 20 and 40:
+			add "  " to {_Jolie::*}
+			add "⬛" to {_Ligne1::*}
+			add "⬛" to {_Ligne2::*}
+			add "⬛" to {_Ligne3::*}
+			add "%{_ping}%⬛%{_vide}%" to {_Ligne4::*}
+			add "⬛" to {_Ligne5::*}
+
+		else if {_pourcentage} is between 40 and 60:
+			add "  " to {_Jolie::*}
+			add "⬛" to {_Ligne1::*}
+			add "⬛" to {_Ligne2::*}
+			add "%{_ping}%⬛%{_vide}%" to {_Ligne3::*}
+			add "⬛" to {_Ligne4::*}
+			add "⬛" to {_Ligne5::*}
+
+		else if {_pourcentage} is between 60 and 80:
+			add "  " to {_Jolie::*}
+			add "⬛" to {_Ligne1::*}
+			add "%{_ping}%⬛%{_vide}%" to {_Ligne2::*}
+			add "⬛" to {_Ligne3::*}
+			add "⬛" to {_Ligne4::*}
+			add "⬛" to {_Ligne5::*}
+
+		else if {_pourcentage} >= 80:
+			add "%{_ping}%&n  %{_vide}%&n" to {_Jolie::*}
+			add "%{_ping}%⬛%{_vide}%" to {_Ligne1::*}
+			add "⬛" to {_Ligne2::*}
+			add "⬛" to {_Ligne3::*}
+			add "⬛" to {_Ligne4::*}
+			add "⬛" to {_Ligne5::*}
+		else:
+			add "%{_erreur}%&n  %{_vide}%&n" to {_Jolie::*}
+			add "%{_erreur}%⬛%{_vide}%" to {_Ligne1::*}
+			add "%{_erreur}%⬛%{_vide}%" to {_Ligne2::*}
+			add "%{_erreur}%⬛%{_vide}%" to {_Ligne3::*}
+			add "%{_erreur}%⬛%{_vide}%" to {_Ligne4::*}
+			add "%{_erreur}%&n⬛%{_vide}%&n" to {_Ligne5::*}
+		remove 1 from {_Compteur}
+
+	set {_Affiche.Time} to ceil({_Affiche.Time})
+	loop {_Affiche.Time} times:
+		add " &e%loop-value% mn &b|" to {_Ligne6::*}
+
+	# add " &e1 mn &b| &e2 mn &b| &e3 mn &b| &e4 mn &b| &e5 mn &b|" to {_Ligne6::*}
+
+	add "&c   %max({_Liste::*})% ms" to {_Ligne1::*}
+	add "&2&m  &r &2%{_Ping.Milieu}% ms" to {_Ligne3::*}
+	add "&b&n   &r&b%min({_Liste::*})% ms" to {_Ligne5::*}
+
+	add "&c&n   " to {_Jolie::*}
+
+
+
+
+	set {_Jolie} to join {_Jolie::*}
+	set {_ligne0} to join {_Ligne0::*}
+	set {_ligne1} to join {_Ligne1::*}
+	set {_ligne2} to join {_Ligne2::*}
+	set {_ligne3} to join {_Ligne3::*}
+	set {_ligne4} to join {_Ligne4::*}
+	set {_ligne5} to join {_Ligne5::*}
+	set {_ligne6} to join {_Ligne6::*}
+
+	return "%{_ligne0}%{NL}{NL}%{_Jolie}%{NL}%{_ligne1}%{NL}%{_ligne2}%{NL}%{_ligne3}%{NL}%{_ligne4}%{NL}%{_ligne5}%{NL}%{_ligne6}%"
+
+
+
+Function Ping_Message(executeur: player, player: text):
+
+	set {_player} to {_player} parsed as player
+	if {_player} is {_executeur}:
+		set {_msg::Ping1} to "&aVotre ping actuel"
+		set {_msg::Graphique1} to "&f- &eGraphique de votre ping"
+		set {_msg::PingMoyen1} to "&aVotre ping moyen"
+		
+	else:
+		set {_msg::Ping1} to "&aLe ping actuel de &e%{_player}%&a"
+		set {_msg::Graphique1} to "&f- &eGraphique du ping de &b%{_player}%&e"
+		set {_msg::PingMoyen1} to "&aLe ping moyen de &e%{_player}%&a"
+
+	set {_LastPing} to ping of {_player}
+	# set {_tps} to placeholder "server_tps"
+	set {_i} to 60
+
+
+	set {_ping::1mn::*} to {Ping::%{_player}%::1mn::*}
+	set {_ping::5mn::*} to {Ping::%{_player}%::5mn::*}
+
+	set {_GraphiquePing} to Ping_GraphiqueCreator({_player})
+	# set {_GraphiqueTPS} to Ping_GraphiqueCreatorTPS()
+
+	send "&a&m------------------------------" to {_executeur}
+	send "" to {_executeur}
+	json("%{_executeur}%","%{_msg::Ping1}% est de&f: &e%{_LastPing}% &ems||ttp:&aSoit de &b&o%{_LastPing} / 1000 % &b&osecondes&a&o.")
+	send "" to {_executeur}
+	json("%{_executeur}%","%{_msg::Graphique1}% ||&b&lℹ||ttp:%{_GraphiquePing}%")
+	send "" to {_executeur}
+	json("%{_executeur}%","&f- &eStats des dernières 15 minutes    ||&b&lℹ||ttp:&6Au court des dernières 15 minutes&f:{NL}{NL}%{_msg::PingMoyen1}% était de&f: &e%round(sum({Ping::%{_player}%::15mn::*}) / size of {Ping::%{_player}%::15mn::*})% &ems{NL}&aPing maximum&f: &c%max({Ping::%{_player}%::15mn::*})% &cms{NL}&aPing minimum&f: &b%min({Ping::%{_player}%::15mn::*})% &bms")  # "
+	json("%{_executeur}%","&f- &eStats des dernières 5 minutes     ||&b&lℹ||ttp:&6Au court des dernières 5 minutes&f:{NL}{NL}%{_msg::PingMoyen1}% était de&f: &e%round(sum({_ping::5mn::*}) / size of {_ping::5mn::*})% &ems{NL}&aPing maximum&f: &c%max({_ping::5mn::*})% &cms{NL}&aPing minimum&f: &b%min({_ping::5mn::*})% &bms")	# "
+	json("%{_executeur}%","&f- &eStats des dernières 60 secondes ||&b&lℹ||ttp:&6Au court des dernières 60 secondes&f:{NL}{NL}%{_msg::PingMoyen1}% était de&f: &e%round(sum({_ping::1mn::*}) / size of {_ping::1mn::*})% &ems{NL}&aPing maximum&f: &c%max({_ping::1mn::*})% &cms{NL}&aPing minimum&f: &b%min({_ping::1mn::*})% &bms")	# "
+	send "" to {_executeur}
+	# send "&6TPS d'il y a 1mn, 5mn, 15mn&f: %{_tps}%" to {_executeur}
+	# json("%{_executeur}%","&f- &eGraphique du TPS ||&b&lℹ||ttp:%{_GraphiqueTPS}%")
+	# send "" to {_executeur}
+	send "&a&m------------------------------" to {_executeur}
+	stop
+
+
+
+command /ping [<text>]:
+	trigger:
+		if arg 1 is set:
+			set {_target} to arg 1
+			set {_target} to {_target} parsed as player
+		else:
+			set {_target} to player
+		if {_target} is online:
+
+			Ping_Message(player, "%{_target}%")
+			stop
+
+		else:
+			send "&cErreur&f: &7Le joueur &e%{_target}% &7n'est actuellement pas connecté !"
+			stop
+
+
+
+command /lag [<text>]:
+	trigger:
+		if arg 1 is set:
+			set {_target} to arg 1
+			set {_target} to {_target} parsed as player
+		else:
+			set {_target} to player
+		if {_target} is online:
+
+			Ping_Message(player, "%{_target}%")
+			stop
+
+		else:
+			send "&cErreur&f: &7Le joueur &e%{_target}% &7n'est actuellement pas connecté !"
+			stop
+
+
+
+on tab complete of "/lag" or "/ping":
+	set tab completions for position 1 to all players
+	stop

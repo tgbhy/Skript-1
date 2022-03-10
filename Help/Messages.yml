@@ -1,0 +1,139 @@
+# Config des messages du /help (aliase: /aide):
+Messages:
+
+    # Texte afficher tout en haut (sert de séparateur avec le tchat)
+    DelimiteurHaut: "&7&m══════════&b{ &6Page d'aide &b}&7&m══════════"
+
+    # Message d'information pour expliquer le fonctionnement
+    Information: "&aPour plus d'information, passer votre souris sur le symbole ||&bℹ||ttp:&aOui comme ceci, tu as tout compris ^^{NL}&7Les arguments entre < > sont obligatoires pour le bon fonctionnement des commandes !{NL}&7Les arguments entre [ ] sont facultatifs.{NL}&b&oVous pouvez également pré-charger la commande dans votre tchat en cliquant sur la commande en question =o"
+
+    # Bouton de la page précédente lorsqu'elle est disponible
+    PagePrecedente_Dispo: "&6[Page précédente]||ttp:&aClique ici pour aller à la page précédente.||cmd:/aide page {PAGE-1}||"
+
+    # Bouton de la page précédente lorsqu'elle n'est pas disponible
+    PagePrecedente_PasDispo: "&7[&mPage précédente&7]"
+
+    # Bouton de la page suivante lorsqu'elle est disponible
+    PageSuivante_Dispo: "&6[Page suivante]||ttp:&aClique ici pour aller à la page suivante.||cmd:/aide page {PAGE+1}"
+
+    # Bouton de la page suivante lorsqu'elle n'est pas disponible
+    PageSuivante_PasDispo: "&7[&mPage suivante&7]"
+
+    # Gestion du choix de la page (avant dernière ligne)
+    ChoixPage: "{PAGE_PRECEDENTE} &e{PAGE_ACTUEL}/{PAGE_TOTAL} {PAGE_SUIVANTE}"
+
+    # Texte afficher tout en haut (sert de séparateur avec le tchat)
+    DelimiteurBas: "&7&m════════════════════════════"
+
+    # Permets l'ajout de commande custom dans le /help (commande + sous commande par exemple, se qui permets de donner une description à chaque sous commande d'une commande)
+    CommandeCustom:
+        - "faction join"
+        - "faction leave"
+
+    home:
+        - "&aAide sur la commande &6&n/home&f:"
+        - "&9Utilisation de la commande&f: &6/home [&nnom du home&6]"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets de se téléporter à &nl'home que vous avez indiqué&e."
+        - "&ePour afficher la liste de vos homes, faite uniquement &6/home&e."
+        - ""
+        - "&b&oPour savoir comment enregistrer un home, référez vous à l'aide de la commande &6/sethome&b."
+        - "&b&oPour savoir comment supprimer un home, référez vous à l'aide de la commande &6/delhome&b."
+
+    sethome:
+        - "&aAide sur la commande &6&n/sethome&f:"
+        - "&9Utilisation de la commande&f: &6/sethome [&nnom du home&6]"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets d'enregistrer un home avec &nle nom indiqué&e sur votre position actuel."
+        - ""
+        - "&b&oPour savoir comment vous téléportez à un home, référez vous à l'aide de la commande &6/home&b."
+        - "&b&oPour savoir comment supprimer un home, référez vous à l'aide de la commande &6/delhome&b."
+
+    delhome:
+        - "&aAide sur la commande &6&n/delhome&f:"
+        - "&9Utilisation de la commande&f: &6/delhome <&nnom du home&6>"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets de supprimer &nl'home indiqué&e."
+        - ""
+        - "&b&oPour savoir comment enregistrer un home, référez vous à l'aide de la commande &6/sethome&b."
+        - "&b&oPour savoir comment vous téléportez à un home, référez vous à l'aide de la commande &6/home&b."
+
+    tpa:
+        - "&aAide sur la commande &6&n/tpa&f:"
+        - "&9Utilisation de la commande&f: &6/tpa <&njoueur&6>"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets de faire une demande de téléportation &nà un joueur&e pour se téléporter à lui."
+        - ""
+        - "&b&oPour savoir comment faire une demande de téléportation à un joueur pour se téléportez à vous, référez vous à l'aide de la commande &6/tpahere&b."
+        - "&b&oPour savoir comment accepter une demande de téléportation, référez vous à l'aide sur la commande &6/tpaccept&b."
+        - "&b&oPour savoir comment refuser une demande de téléportation, référez vous à l'aide sur la commande &6/tpdeny&b."
+
+    tpahere:
+        - "&aAide sur la commande &6&n/tpa&f:"
+        - "&9Utilisation de la commande&f: &6/tpahere <&njoueur&6>"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets de faire une demande de téléportation &nà un joueur&e pour qu'il se téléporte à vous."
+        - ""
+        - "&b&oPour savoir comment faire une demande de téléportation à un joueur pour se téléporter à lui, référez vous à l'aide de la commande &6/tpahere&b."
+        - "&b&oPour savoir comment accepter une demande de téléportation, référez vous à l'aide sur la commande &6/tpaccept&b."
+        - "&b&oPour savoir comment refuser une demande de téléportation, référez vous à l'aide sur la commande &6/tpdeny&b."
+
+    tpaccept:
+        - "&aAide sur la commande &6&n/tpaccept&f:"
+        - "&9Utilisation de la commande&f: &6/tpaccept"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets d'accepter une demande de téléportation."
+        - ""
+        - "&b&oPour savoir comment faire une demande de téléportation à un joueur pour se téléporter à lui, référez vous à l'aide de la commande &6/tpahere&b."
+        - "&b&oPour savoir comment faire une demande de téléportation à un joueur pour se téléportez à vous, référez vous à l'aide de la commande &6/tpahere&b."
+        - "&b&oPour savoir comment refuser une demande de téléportation, référez vous à l'aide sur la commande &6/tpdeny&b."
+
+    tpdeny:
+        - "&aAide sur la commande &6&n/tpdeny&f:"
+        - "&9Utilisation de la commande&f: &6/tpdeny"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets de refuser une demande de téléportation."
+        - ""
+        - "&b&oPour savoir comment faire une demande de téléportation à un joueur pour se téléporter à lui, référez vous à l'aide de la commande &6/tpahere&b."
+        - "&b&oPour savoir comment faire une demande de téléportation à un joueur pour se téléportez à vous, référez vous à l'aide de la commande &6/tpahere&b."
+        - "&b&oPour savoir comment accepter une demande de téléportation, référez vous à l'aide sur la commande &6/tpaccept&b."
+
+    pay:
+        - "&aAide sur la commande &6&n/pay&f:"
+        - "&9Utilisation de la commande&f: &6/pay <joueur> <montant>"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets d'envoyer une certaine somme d'argent à un joueur."
+        - ""
+        - "&b&oPour savoir comment connaitre la somme d'argent que dispose un joueur, référez vous à l'aide de la commande &6/money&e."
+
+    help:
+        - "&aAide sur la commande &6&n/help&f&o..."
+        - "&9Utilisation de la commande&f: &6/help [commande]"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets de faire exactement se que vous êtes en train de faire actuellement ! Lire une page d'aide =O"
+        - "&eMais je ne pense pas qu'il est vraiment nécéssaire que j'explique cette commande :ano_mhmm:"
+        - "&eAh si, il est possible d'obtenir l'aide sur une commande spécifique en faissant &6/help [commande]&e ;)"
+        - "&eA condition que celle ci soit disponible."
+
+    faction join:
+        - "&aAide sur la commande &6&n/faction &njoin&f:"
+        - "&9Utilisation de la commande&f: &6/faction join <&nnom de la faction&6>"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets de rejoindre la faction indiqué."
+
+    faction leave:
+        - "&aAide sur la commande &6&n/faction &nleave&f:"
+        - "&9Utilisation de la commande&f: &6/faction leave"
+        - ""
+        - "&a&nDescription&f:"
+        - "&ePermets de quitter la faction dans laquelle vous vous trouvez."

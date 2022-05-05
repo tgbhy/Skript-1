@@ -2,22 +2,23 @@
 Messages:
 
     # Texte afficher tout en haut (sert de séparateur avec le tchat)
-    DelimiteurHaut: "&7&m══════════&b{ &6Page d'aide &b}&7&m══════════"
+    DelimiteurHaut: "&7&m══════════&b{&r &6Page d'aide &b}&7&m══════════"
 
     # Message d'information pour expliquer le fonctionnement
-    Information: "&aPour plus d'information, passer votre souris sur le symbole ||&bℹ||ttp:&aOui comme ceci, tu as tout compris ^^{NL}&7Les arguments entre < > sont obligatoires pour le bon fonctionnement des commandes !{NL}&7Les arguments entre [ ] sont facultatifs.{NL}&b&oVous pouvez également pré-charger la commande dans votre tchat en cliquant sur la commande en question =o"
+    # Information: "&aPour plus d'information, passer votre souris sur le symbole ||&bℹ||ttp:&aOui comme ceci, tu as tout compris ^^{NL}&7Les arguments entre < > sont obligatoires pour le bon fonctionnement des commandes !{NL}&7Les arguments entre [ ] sont facultatifs.{NL}&b&oVous pouvez également pré-charger la commande dans votre tchat en cliquant sur la commande en question =o"
+    Information: "&aPour plus d'information, passer votre souris sur le symbole <tooltip:&aOui comme ceci, tu as tout compris ^^{NL}&7Les arguments entre crochet sont obligatoires pour le bon fonctionnement des commandes !{NL}&7Les arguments entre [ ] sont facultatifs.{NL}&b&oVous pouvez également pré-charger la commande dans votre tchat en cliquant sur la commande en question =o>&bℹ<reset>"
 
     # Bouton de la page précédente lorsqu'elle est disponible
-    PagePrecedente_Dispo: "&6[Page précédente]||ttp:&aClique ici pour aller à la page précédente.||cmd:/aide page {PAGE-1}||"
+    PagePrecedente_Dispo: "<tooltip:&aClique ici pour aller à la page précédente.><command:/aide page {PAGE-1}>&6[Page précédente]&r<reset>"
 
     # Bouton de la page précédente lorsqu'elle n'est pas disponible
-    PagePrecedente_PasDispo: "&7[&mPage précédente&7]"
+    PagePrecedente_PasDispo: "&7[&mPage précédente&7]&r"
 
     # Bouton de la page suivante lorsqu'elle est disponible
-    PageSuivante_Dispo: "&6[Page suivante]||ttp:&aClique ici pour aller à la page suivante.||cmd:/aide page {PAGE+1}"
+    PageSuivante_Dispo: "<tooltip:&aClique ici pour aller à la page suivante.><command:/aide page {PAGE+1}>&6[Page suivante]&r<reset>"
 
     # Bouton de la page suivante lorsqu'elle n'est pas disponible
-    PageSuivante_PasDispo: "&7[&mPage suivante&7]"
+    PageSuivante_PasDispo: "&7[&mPage suivante&7]&r"
 
     # Gestion du choix de la page (avant dernière ligne)
     ChoixPage: "{PAGE_PRECEDENTE} &e{PAGE_ACTUEL}/{PAGE_TOTAL} {PAGE_SUIVANTE}"
@@ -25,8 +26,10 @@ Messages:
     # Texte afficher tout en haut (sert de séparateur avec le tchat)
     DelimiteurBas: "&7&m════════════════════════════"
 
-    # Permets l'ajout de commande custom dans le /help (commande + sous commande par exemple, se qui permets de donner une description à chaque sous commande d'une commande)
+    # Permets l'ajout de commande custom dans le /help (commande + sous commande par exemple, se qui permets de donner une description à chaque sous commande d'une commande) 👀
+    # Nouveau : Si l'option `ChargerToutesLesCommandesDuServeur` = false, uniquement les commandes ci-dessous seront disponible dans le /help
     CommandeCustom:
+        - "help"
         - "faction join"
         - "faction leave"
 

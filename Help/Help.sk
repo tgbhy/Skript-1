@@ -1,12 +1,28 @@
 options:
 	# 20 lignes de texte dans le tchat avant d'être cacher (toujours bien à savoir ^^)
+	# NombreDeCommandeParPage: 10
+	Logo: &b[&6AntAide&b]
+	LogoDebug: &2[DEBUG]
 	NombreDeCommandeParPage: 10
+	ChargerToutesLesCommandesDuServeur: false
+
+
 
 on load:
+
+	send "{@Logo} &eDémarrage du skript d'aide en cours..." to console
+
 	clear {Help::*}
-	set {Help::ListeDeToutesLesCommandes::*} to all commands
+	if {@ChargerToutesLesCommandesDuServeur} is true:
+		set {Help::ListeDeToutesLesCommandes::*} to all commands
+		send "{@Logo} &b%size of {Help::ListeDeToutesLesCommandes::*}% &7&ocommandes ont étaient trouvé sur ce serveur ! &e👀" to console
+
+	else:
+		send "{@Logo} &eChargement uniquement des commandes disponible dans la config des messages !" to console
+		
 
 	load yaml "/plugins/Skript/YAML/Help/Messages.yml" as "Message_Help"
+	send "{@Logo} &7Chargement des messages de la configuration en cours..." to console
 
 	set {Help::Message::DelimiteurHaut} to skript-yaml value "Messages.DelimiteurHaut" from "Message_Help"
 	set {Help::Message::DelimiteurBas} to skript-yaml value "Messages.DelimiteurBas" from "Message_Help"
@@ -16,30 +32,36 @@ on load:
 	set {Help::Message::PageSuivante_Dispo} to skript-yaml value "Messages.PageSuivante_Dispo" from "Message_Help"
 	set {Help::Message::PageSuivante_PasDispo} to skript-yaml value "Messages.PageSuivante_PasDispo" from "Message_Help"
 	set {Help::Message::Information} to skript-yaml value "Messages.Information" from "Message_Help"
-	set {Help::CommandeCustom::*} to skript-yaml list "Messages.CommandeCustom" from "Message_Help"
 
-	set {_liste::*} to {Help::ListeDeToutesLesCommandes::*}
+	set {_NbErreur_1} to 8 - size of {Help::Message::*}
+	send "{@Logo} &aChargement des messages de la configuration terminé !" to console
+	send "{@Logo} &7&o%{_NbErreur_1}% erreur(s) on(t) étai(en)t trouvé !" to console
+
+	send "{@Logo} &7Chargement des commandes custom en cours..." to console
+	set {Help::CommandeCustom::*} to skript-yaml list "Messages.CommandeCustom" from "Message_Help"
+	send "{@Logo} &b%size of {Help::CommandeCustom::*}% &7&ocommandes custom indiqué dans la configuration..." to console
+
+	set {_liste::*} to {Help::ListeDeToutesLesCommandes::*} if {@ChargerToutesLesCommandesDuServeur} is true
 	add {Help::CommandeCustom::*} to {_liste::*}
 
 	loop {_liste::*}:
 		if skript-yaml value "Messages.%loop-value%" from "Message_Help" is set:
 			add loop-value to {Help::ListeDesCommandes::*}
-			send "Page d'aide - &aChargement du message &b%loop-value%" to console
+			send "{@Logo} - &aChargement du message de la commande &b/%loop-value%" to console
 
 			set {Help::Message::%loop-value%::*} to skript-yaml list "Messages.%loop-value%" from "Message_Help"
-			loop {Help::Message::%loop-value%::*}:
-				add loop-value-2 to {_l::*}
-				add "{NL}" to {_l::*}
 
-			set {_size} to size of {_l::*}
-			clear {_l::%{_size}%}
-			set {Help::Message::%loop-value%} to join {_l::*}
-
-			if {Help::Message::%loop-value%} is not set:
+			if {Help::Message::%loop-value%::*} is empty:
 				set {Help::Message::%loop-value%} to skript-yaml value "Messages.%loop-value%" from "Message_Help"
+
+			set {Help::Message::%loop-value%} to join {Help::Message::%loop-value%::*} with nl
 
 			clear {_l::*}
 			wait 1 tick
+
+		else if {@ChargerToutesLesCommandesDuServeur} is false:
+			send "{@Logo} &cErreur&f: &7Impossible de charger le message &e%loop-value%" to console
+
 
 
 
@@ -54,7 +76,7 @@ command /help [<text>] [<text>]:
 		set {_NbMaxPage} to ceil(size of {Help::ListeDesCommandes::*} / {@NombreDeCommandeParPage})
 
 		if arg 1 is set:
-			if arg 1 is "Page":
+			if arg 1 is "Page" or "P":
 				if arg 2 is set:
 					if (arg 2 parsed as integer) is between 1 and {_NbMaxPage}:
 						set {_page} to arg 2 parsed as integer
@@ -62,16 +84,19 @@ command /help [<text>] [<text>]:
 						set {_page} to {_NbMaxPage}
 						
 			else:
-				if {Help::ListeDesCommandes::*} contain arg 1:
+				set {_fullcmd} to join arg 1 and arg 2 with " "
+				# if {Help::ListeDesCommandes::*} contain arg 1:    # NE FONCTIONNE PAS :ant_pleur:
+				if {Help::Message::%{_fullcmd}%} is set:
 					send "%{Help::Message::DelimiteurHaut}%"
 					send ""
-					json("%player%","%{Help::Message::%arg 1%}%")
+					loop {Help::Message::%{_fullcmd}%} split at nl:
+						send formatted loop-value
 					send ""
 					send "%{Help::Message::DelimiteurBas}%"
 					stop
 					
 				else:
-					send "&cErreur&f: &7La commande &e%arg 1% &7ne dispose pas de page d'aide =("
+					send "&cErreur&f: &7La commande &e%{_fullcmd}% &7ne dispose pas de page d'aide =("
 					stop
 
 		if {_page} is not set:
@@ -88,27 +113,42 @@ command /help [<text>] [<text>]:
 		loop alphabetical order of {_ListeCmd::*}:
 			add loop-value to {_Help::*}
 
-		Help_SendPageAide(player,{_Help::*},{_page})
+		Help_SendPageAide(command sender,{_Help::*},{_page})
 
 
 
-Function Help_SendPageAide(player: player, message: texts, page: integer):
+Function Help_SendPageAide(player: command sender, message: texts, page: integer):
 
-	send "%{Help::Message::DelimiteurHaut}%" to {_player}
-	json("%{_player}%","%{Help::Message::Information}%")
+	set {_msgDelimiteurHaut} to {Help::Message::DelimiteurHaut}
+	set {_msgInformation} to {Help::Message::Information}
+	set {_msgDelimiteurBas} to {Help::Message::DelimiteurBas}
+
+	if {_player} is console:
+		set {_msgDelimiteurHaut} to regex replace ".(?<=<|\t).*?(?=>|\n)." with "" in {_msgDelimiteurHaut}
+		set {_msgInformation} to regex replace ".(?<=<|\t).*?(?=>|\n)." with "" in {_msgInformation}
+		set {_msgDelimiteurBas} to regex replace ".(?<=<|\t).*?(?=>|\n)." with "" in {_msgDelimiteurBas}
+
+	replace all "{NL}" with nl in {_msgDelimiteurHaut}
+	replace all "{NL}" with nl in {_msgInformation}
+	replace all "{NL}" with nl in {_msgDelimiteurBas}
+
+	send "%{_msgDelimiteurHaut}%" to {_player}
+
+	send formatted "%{_msgInformation}%" to {_player}
 	send "" to {_player}
 
 	loop {_message::*}:
-		json("%{_player}%","&bℹ||ttp:%{Help::Message::%loop-value%}%||sgt:/help %loop-value%|| &f- &6/%loop-value%||sgt:/%loop-value% ")
+		send formatted "&bℹ &f- &6/%loop-value%" to {_player} if {_player} is console
+		send formatted "<tooltip:%{Help::Message::%loop-value%}%><suggest command:/help %loop-value%>&bℹ<reset> &f- <suggest command:/%loop-value%>&6/%loop-value%<reset>" to {_player} if {_player} is not console
 
 	send "" to {_player}
 
-	set {_NbMaxPage} to ceil(size of {Help::ListeDesCommandes::*} / {@NombreDeCommandeParPage})
 	set {_ChoixBas} to {Help::Message::ChoixPage}
+	set {_NbMaxPage} to ceil(size of {Help::ListeDesCommandes::*} / {@NombreDeCommandeParPage})
 
 	replace all "{PAGE_ACTUEL}" with "%{_page}%" in {_ChoixBas}
 	replace all "{PAGE_TOTAL}" with "%{_NbMaxPage}%" in {_ChoixBas}
-	
+
 	if {_page} is {_NbMaxPage}:
 		replace all "{PAGE_SUIVANTE}" with "%{Help::Message::PageSuivante_PasDispo}%" in {_ChoixBas}
 	else:
@@ -121,9 +161,11 @@ Function Help_SendPageAide(player: player, message: texts, page: integer):
 		replace all "{PAGE_PRECEDENTE}" with "%{Help::Message::PagePrecedente_Dispo}%" in {_ChoixBas}
 		replace all "{PAGE-1}" with "%{_page} - 1%" in {_ChoixBas}
 
+	if {_player} is console:
+		set {_ChoixBas} to regex replace ".(?<=<|\t).*?(?=>|\n)." with "" in {_ChoixBas}
 
-	json("%{_player}%","%{_ChoixBas}%")
-	send "%{Help::Message::DelimiteurBas}%" to {_player}
+	send formatted "%{_ChoixBas}%" to {_player}
+	send "%{_msgDelimiteurBas}%" to {_player}
 
 	stop
 

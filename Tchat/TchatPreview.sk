@@ -1,0 +1,44 @@
+#
+# Ne fonctionne que de la 1.19 à la 1.19.2 !
+#
+
+import:
+	org.bukkit.event.player.AsyncPlayerChatEvent
+	org.bukkit.event.player.AsyncPlayerChatPreviewEvent 
+
+
+
+Options:
+	ReportBouton: &7[&c&l!&7]
+
+
+
+on AsyncPlayerChatEvent:
+	set {_player} to event.getPlayer()
+	set {_message} to event.getMessage()
+
+	set {_Prefix} to placeholder "vault_prefix" from {_player}
+	set {_Suffix} to placeholder "vault_suffix" from {_player}
+	set {_Prefix} to "" if {_Prefix} is not set
+	set {_Suffix} to "" if {_Suffix} is not set
+
+	event.setMessage("{@ReportBouton} %{_prefix}%%{_player}%%{_suffix}%&f » %colored {_message}% ")
+
+
+on chat:
+	cancel event
+
+	set {_player} to event.getPlayer()
+	set {_message} to event.getMessage()
+	set {_uuid} to uuid of {_player}
+
+	set {_Prefix} to placeholder "vault_prefix" from {_player}
+	set {_Suffix} to placeholder "vault_suffix" from {_player}
+	set {_Prefix} to "" if {_Prefix} is not set
+	set {_Suffix} to "" if {_Suffix} is not set
+
+	set {_ReportButton} to "{@ReportBouton}"
+	set {_ReportButtonHoverText} to "&6Clic gauche &7pour signaler le message du joueur &e%player%&7."
+	set {_ReportReson} to "Message inapproprié"
+
+	send formatted "<tooltip:%{_ReportButtonHoverText}%><run command:/report %{_player}% %{_ReportReson}%>%{_ReportButton}% %{_Prefix}%%{_player}%%{_Suffix}%&f »<reset> %{_message}%" to all players

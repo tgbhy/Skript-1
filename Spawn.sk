@@ -1,0 +1,106 @@
+# Un vieux skript de /setspawn, /spawn.
+# Créer par Superyohan - https://github.com/Superyohan/Skript
+
+options:
+	Logo: &b[&6Spawn&b]
+	DelayTP: 10 # Integer qui correspond au nombre de seconde à attendre avant le tp
+
+
+
+command /setspawn [<text>]:
+	trigger:
+		if player has permission "setspawn":
+			set {Spawn} to location of player
+			send "{@Logo} &aVous venez de régler le spawn en&f: &b%{Spawn}%"
+			stop
+
+		else:
+			send "{@Logo} &cErreur&f: &7Désolé mais vous n'avez pas la permission pour effectuer cette commande !"
+			stop
+
+
+command /spawn [<text>] [<number = 0>]:
+	trigger:
+		if player doesn't have permission "spawn":
+			send "{@Logo} &cErreur&f: &7Désolé mais tu n'as pas accès à cette commande !"
+			stop
+
+		if arg 1 is not set:
+			set {_arg1} to player
+
+		else:
+			if (arg 1 parsed as player) is online:
+				if player has permission "spawn.other":
+					set {_arg1} to arg 1
+					set {_time} to arg 2
+
+				else:
+					send "{@Logo} &cErreur&f: &7Désolé mais tu n'as pas la permission pour pouvoir téléporter un joueur au spawn !"
+					stop
+
+			else:
+				send "{@Logo} &cErreur&f: &7Désolé mais le joueur &e%arg 1% &7n'est pas connecté !"
+				stop
+
+		if {_time} is not set:
+			set {_time} to {@DelayTP}
+
+		Spawn({_arg1},{_time})
+		stop
+
+
+
+Function Spawn(player: offline player, delay: number):
+
+	set {_emplacement} to {Spawn}
+
+	set {_posX.%{_player}%} to rounded x-location of {_player}'s location
+	set {_posY.%{_player}%} to rounded y-location of {_player}'s location
+	set {_posZ.%{_player}%} to rounded z-location of {_player}'s location
+	set {Spawn.check.otherTp.%{_player}%.1} to now
+	wait 0.11 seconds
+	set {Spawn.check.otherTp.%{_player}%.2} to {Spawn.check.otherTp.%{_player}%.1}
+	send "&7La téléportation commance dans %{_delay}%&7 secondes. Ne bougez pas." to {_player}
+
+	loop {_delay}*{_delay}*10+1 times:
+		if {Spawn.check.otherTp.%{_player}%.1} is {Spawn.check.otherTp.%{_player}%.2}:
+			wait 0.1 seconds
+			if {_delay} is greater than 0:				
+				{_posX.%{_player}%} is not rounded x-location of {_player}'s location:
+					send "&cRequete de téléportation annulée." to {_player}
+					send action bar "&cTéléportation annulée." to {_player}
+					clear {Spawn.check.otherTp.%{_player}%.1}
+					clear {Spawn.check.otherTp.%{_player}%.2}
+					stop
+
+				{_posY.%{_player}%} is not rounded y-location of {_player}'s location:
+					send "&cRequete de téléportation annulée." to {_player}
+					send action bar "&cTéléportation annulée." to {_player}
+					clear {Spawn.check.otherTp.%{_player}%.1}
+					clear {Spawn.check.otherTp.%{_player}%.2}
+					stop
+
+				{_posZ.%{_player}%} is not rounded z-location of {_player}'s location:
+					send "&cRequete de téléportation annulée." to {_player}
+					send action bar "&cTéléportation annulée." to {_player}
+					clear {Spawn.check.otherTp.%{_player}%.1}
+					clear {Spawn.check.otherTp.%{_player}%.2}
+					stop
+
+				set {_delay} to {_delay} - 0.1
+				send action bar "&6Temps de téléportation restant: &7%{_delay}%&7 secondes" to {_player}
+
+			else:
+				send action bar "&7Début de la téléportation ..." to {_player}
+				send "&7Début de la téléportation..." to {_player}
+				clear {Spawn.check.otherTp.%{_player}%.1}
+				clear {Spawn.check.otherTp.%{_player}%.2}
+
+				teleport {_player} to {_emplacement}
+
+				stop
+
+		else:
+			stop
+
+	stop
